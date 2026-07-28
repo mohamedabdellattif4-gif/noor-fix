@@ -45,7 +45,7 @@ dependencies {
     implementation(libs.androidx.profileinstaller)
     implementation(libs.androidx.arch.core.runtime)
     implementation(libs.androidx.startup.runtime)
-    implementation(libs.errorprone.annotations)
+    compileOnly(libs.errorprone.annotations)
     implementation(libs.androidx.test.ext.junit.ktx)
     implementation(libs.androidx.test.runner)
     implementation(libs.androidx.test.uiautomator)

@@ -384,6 +384,14 @@ def verify_architecture() -> None:
         "content=`ayahs`" in migrations,
         "The migrated FTS table must match Room's backtick-quoted external-content schema",
     )
+    ayah_dao = text("data/src/main/kotlin/com/noor/data/local/dao/AyahDao.kt")
+    for fragment in [
+        "@Transaction",
+        "suspend fun upsertRows",
+        "INSERT INTO ayahs_fts(ayahs_fts) VALUES('rebuild')",
+        "rebuildSearchIndex()",
+    ]:
+        require(fragment in ayah_dao, f"Corpus upserts do not guarantee FTS synchronization: {fragment}")
 
 
 def verify_code_hygiene() -> None:
