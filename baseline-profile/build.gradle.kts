@@ -18,6 +18,7 @@ android {
         create("benchmark") {
             matchingFallbacks += listOf("release")
             isDebuggable = true
+            isMinifyEnabled = true
         }
         create("nonMinifiedRelease") {
             matchingFallbacks += listOf("release")

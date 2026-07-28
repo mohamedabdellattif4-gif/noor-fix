@@ -182,6 +182,8 @@ def verify_toml_and_gradle() -> None:
         require(fragment in baseline_gradle, f"Benchmark configuration missing: {fragment}")
     require("alias(libs.plugins.benchmark)" not in baseline_gradle,
             "The AndroidX Benchmark plugin supports Android library modules, not com.android.test")
+    require("isMinifyEnabled = true" in baseline_gradle,
+            "The benchmark test APK must be shrunk when the tested benchmark app is shrunk")
     require("libs.plugins.baseline.profile" not in baseline_gradle,
             "Benchmark module must not apply the incompatible Baseline Profile Gradle plugin")
     root_gradle = text("build.gradle.kts")
@@ -224,9 +226,13 @@ def verify_toml_and_gradle() -> None:
     require(":baseline-profile:assembleBenchmark" in android_ci, "CI does not compile the benchmark test module")
     require(":baseline-profile:assembleNonMinifiedRelease" in android_ci,
             "CI does not compile the profile-generation test variant")
+    require("-Pandroid.testoptions.manageddevices.emulator.gpu=swiftshader_indirect" in android_ci,
+            "CI managed-device tests do not select the GitHub Actions-compatible GPU renderer")
     profile_ci = text(".github/workflows/baseline-profile.yml")
     require(":baseline-profile:pixel6Api35NonMinifiedReleaseAndroidTest" in profile_ci,
             "Baseline Profile workflow does not run the managed-device producer")
+    require("-Pandroid.testoptions.manageddevices.emulator.gpu=swiftshader_indirect" in profile_ci,
+            "Baseline Profile workflow does not select the GitHub Actions-compatible GPU renderer")
     require("tools/update_baseline_profile.py" in profile_ci,
             "Baseline Profile workflow does not validate and install generated rules")
     codeql = text(".github/workflows/codeql.yml")

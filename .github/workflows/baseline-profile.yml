@@ -37,6 +37,7 @@ jobs:
         run: |
           chmod +x gradlew
           ./gradlew :baseline-profile:pixel6Api35NonMinifiedReleaseAndroidTest \
+            -Pandroid.testoptions.manageddevices.emulator.gpu=swiftshader_indirect \
             -Pandroid.testInstrumentationRunnerArguments.androidx.benchmark.enabledRules=BaselineProfile \
             -Pandroid.testInstrumentationRunnerArguments.androidx.benchmark.suppressErrors=EMULATOR \
             --stacktrace
