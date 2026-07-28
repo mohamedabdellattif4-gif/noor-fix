@@ -132,7 +132,7 @@ def verify_gradle_and_ci() -> None:
     ci = read(".github/workflows/android-ci.yml")
     require("java-version: '17'" in ci, "Android CI must use JDK 17")
     require('sdkmanager "platforms;android-37" "build-tools;36.0.0"' in ci,
-            "Android CI SDK versions do not match AGP 9.2 requirements")
+            "Android CI SDK versions do not match the project toolchain")
     require("verify_build_foundation.py --allow-missing-wrapper-jar" in ci,
             "Source CI does not run the build-foundation verifier")
     require("verify_build_foundation.py --require-wrapper-jar" in ci,

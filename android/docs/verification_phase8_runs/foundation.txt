@@ -1,2 +1,0 @@
-NOTE: Wrapper JAR is absent in this sandbox; bootstrap is checksum-pinned and required before Gradle execution.
-BUILD FOUNDATION VERIFICATION: PASSED

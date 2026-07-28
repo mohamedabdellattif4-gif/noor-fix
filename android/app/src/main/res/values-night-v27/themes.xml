@@ -1,5 +1,0 @@
-<resources>
-    <style name="Theme.Noor" parent="Theme.Noor.Base">
-        <item name="android:windowLightNavigationBar">false</item>
-    </style>
-</resources>

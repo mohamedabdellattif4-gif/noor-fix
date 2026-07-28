@@ -650,6 +650,8 @@ def verify_text_hygiene() -> None:
         if not path.is_file() or path.suffix in {".db", ".jar", ".zip", ".png", ".jpg", ".webp"}:
             continue
         relative = path.relative_to(ROOT)
+        if relative.parts and relative.parts[0] in {".git", ".gradle", ".verification", "build"}:
+            continue
         # Vendored source and license notices remain byte-for-byte as supplied by their publishers.
         if str(relative).startswith("tools/vendor/") or str(relative).startswith("app/src/main/assets/licenses/"):
             continue

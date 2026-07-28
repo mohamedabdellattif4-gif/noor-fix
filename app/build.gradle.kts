@@ -49,7 +49,7 @@ android {
     defaultConfig {
         applicationId = "com.noor.app"
         minSdk = 23
-        targetSdk = 37
+        targetSdk = 36
         versionCode = noorVersionCode
         versionName = noorVersionName
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -119,10 +119,15 @@ android {
 
     testOptions {
         animationsDisabled = true
-        // Managed virtual devices (AVD-based instrumented tests) are not used on Replit.
-        // The pixel6Api35 managed device is defined in the baseline-profile module for
-        // Macrobenchmark runs. AGP 9.2.1 changed the managedDevices.devices container API;
-        // re-add this block when running device tests on a machine with an Android emulator.
+        managedDevices {
+            devices {
+                create<com.android.build.api.dsl.ManagedVirtualDevice>("pixel6Api35") {
+                    device = "Pixel 6"
+                    apiLevel = 35
+                    systemImageSource = "aosp"
+                }
+            }
+        }
     }
 
     lint {
