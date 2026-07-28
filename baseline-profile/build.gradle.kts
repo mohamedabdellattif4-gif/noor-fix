@@ -42,6 +42,10 @@ android {
 
 dependencies {
     implementation(libs.androidx.benchmark.macro.junit4)
+    implementation(libs.androidx.profileinstaller)
+    implementation(libs.androidx.arch.core.runtime)
+    implementation(libs.androidx.startup.runtime)
+    implementation(libs.errorprone.annotations)
     implementation(libs.androidx.test.ext.junit.ktx)
     implementation(libs.androidx.test.runner)
     implementation(libs.androidx.test.uiautomator)

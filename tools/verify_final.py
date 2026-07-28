@@ -126,7 +126,8 @@ def verify_toml_and_gradle() -> None:
     versions = catalog.get("versions", {})
     required = {
         "agp", "kotlin", "ksp", "hilt", "composeBom", "room",
-        "datastore", "work", "media3", "benchmark", "profileInstaller", "uiAutomator",
+        "datastore", "work", "media3", "benchmark", "profileInstaller",
+        "archCore", "startup", "errorProneAnnotations", "uiAutomator",
     }
     require(required <= set(versions), "Version Catalog misses required versions")
     require(versions.get("work") == "2.11.2", "WorkManager version is not pinned to 2.11.2")
@@ -135,6 +136,10 @@ def verify_toml_and_gradle() -> None:
     require(versions.get("room") == "2.8.4", "Room version is not pinned to 2.8.4")
     require(versions.get("benchmark") == "1.4.1", "Benchmark version is not pinned to 1.4.1")
     require(versions.get("profileInstaller") == "1.4.1", "ProfileInstaller version is not pinned to 1.4.1")
+    require(versions.get("archCore") == "2.2.0", "Arch Core version is not pinned to 2.2.0")
+    require(versions.get("startup") == "1.2.0", "App Startup version is not pinned to 1.2.0")
+    require(versions.get("errorProneAnnotations") == "2.36.0",
+            "Error Prone annotations version is not pinned to 2.36.0")
     require(versions.get("uiAutomator") == "2.4.0", "UiAutomator version is not pinned to 2.4.0")
     require(versions.get("kotlin") == "2.3.10", "Kotlin is not pinned to the AGP 9.2 built-in Kotlin version 2.3.10")
     require(versions.get("ksp") == "2.3.10", "KSP is not pinned to 2.3.10")
@@ -177,6 +182,8 @@ def verify_toml_and_gradle() -> None:
         'create("benchmark")', 'create("nonMinifiedRelease")',
         'matchingFallbacks += listOf("release")',
         'systemImageSource = "aosp"', "androidx.benchmark.macro.junit4",
+        "androidx.profileinstaller", "androidx.arch.core.runtime",
+        "androidx.startup.runtime", "errorprone.annotations",
         "androidx.test.uiautomator",
     ]:
         require(fragment in baseline_gradle, f"Benchmark configuration missing: {fragment}")
@@ -373,6 +380,10 @@ def verify_architecture() -> None:
         "createAyahFtsSyncTriggers(database)" in migrations,
         "The 2 -> 3 migration must recreate FTS synchronization triggers after Room drops them",
     )
+    require(
+        "content=`ayahs`" in migrations,
+        "The migrated FTS table must match Room's backtick-quoted external-content schema",
+    )
 
 
 def verify_code_hygiene() -> None:
@@ -439,7 +450,7 @@ def verify_migration_fts_sync_contract() -> None:
                 id INTEGER NOT NULL PRIMARY KEY,
                 text_simple TEXT NOT NULL
             );
-            CREATE VIRTUAL TABLE ayahs_fts USING FTS4(text_simple, content='ayahs');
+            CREATE VIRTUAL TABLE ayahs_fts USING FTS4(`text_simple` TEXT NOT NULL, content=`ayahs`);
             """
         )
         for statement in trigger_sql:
@@ -449,7 +460,7 @@ def verify_migration_fts_sync_contract() -> None:
         require(
             connection.execute(
                 "SELECT COUNT(*) FROM ayahs_fts WHERE ayahs_fts MATCH ?",
-                ('"الرحمن*"',),
+                ("الرحمن*",),
             ).fetchone()[0] == 1,
             "Migrated FTS triggers do not synchronize inserts",
         )
@@ -457,14 +468,14 @@ def verify_migration_fts_sync_contract() -> None:
         require(
             connection.execute(
                 "SELECT COUNT(*) FROM ayahs_fts WHERE ayahs_fts MATCH ?",
-                ('"الرحمن*"',),
+                ("الرحمن*",),
             ).fetchone()[0] == 0,
             "Migrated FTS triggers leave stale terms after updates",
         )
         require(
             connection.execute(
                 "SELECT COUNT(*) FROM ayahs_fts WHERE ayahs_fts MATCH ?",
-                ('"مالك*"',),
+                ("مالك*",),
             ).fetchone()[0] == 1,
             "Migrated FTS triggers do not synchronize updated terms",
         )
@@ -503,7 +514,7 @@ def verify_database() -> None:
         require(con.execute("SELECT MIN(juz_number), MAX(juz_number) FROM ayahs").fetchone() == (1, 30), "Juz range mismatch")
         require(con.execute("SELECT MIN(hizb_quarter), MAX(hizb_quarter) FROM ayahs").fetchone() == (1, 240), "Rub el hizb range mismatch")
         require(con.execute("SELECT COUNT(*) FROM ayahs WHERE trim(text_uthmani)='' OR trim(text_simple)='' ").fetchone()[0] == 0, "Blank Quran text found")
-        require(con.execute("SELECT COUNT(*) FROM ayahs_fts WHERE ayahs_fts MATCH ?", ("\"الرحمن*\" AND \"الرحيم*\"",)).fetchone()[0] > 0, "Arabic FTS query failed")
+        require(con.execute("SELECT COUNT(*) FROM ayahs_fts WHERE ayahs_fts MATCH ?", ("الرحمن* AND الرحيم*",)).fetchone()[0] > 0, "Arabic FTS query failed")
 
         tanzil_root = ET.parse(ROOT / "tools/vendor/tanzil-quran-uthmani.xml").getroot()
         expected = [aya.attrib["text"] for sura in tanzil_root.findall("sura") for aya in sura.findall("aya")]

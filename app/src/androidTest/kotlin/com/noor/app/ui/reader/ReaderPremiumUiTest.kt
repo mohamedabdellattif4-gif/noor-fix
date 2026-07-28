@@ -2,7 +2,7 @@ package com.noor.app.ui.reader
 
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.remember
-import androidx.compose.ui.test.assertExists
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -61,12 +61,12 @@ class ReaderPremiumUiTest {
             }
         }
 
-        composeRule.onNodeWithTag(ReaderTestTags.SURAH_TITLE).assertExists()
-        composeRule.onNodeWithText(ayah.textUthmani).assertExists()
+        composeRule.onNodeWithTag(ReaderTestTags.SURAH_TITLE).assertIsDisplayed()
+        composeRule.onNodeWithText(ayah.textUthmani).assertIsDisplayed()
         composeRule.onNodeWithTag(ReaderTestTags.BOOKMARK_ACTION).performClick()
         assertEquals(ayah.id, bookmarkedAyahId)
 
         composeRule.onNodeWithTag(ReaderTestTags.TEXT_SIZE_ACTION).performClick()
-        composeRule.onNodeWithTag(ReaderTestTags.TEXT_SIZE_DIALOG).assertExists()
+        composeRule.onNodeWithTag(ReaderTestTags.TEXT_SIZE_DIALOG).assertIsDisplayed()
     }
 }

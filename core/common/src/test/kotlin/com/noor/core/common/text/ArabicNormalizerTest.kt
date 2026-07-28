@@ -12,8 +12,8 @@ class ArabicNormalizerTest {
 
     @Test
     fun buildsSafePrefixQuery() {
-        assertEquals("\"الرحمن*\" AND \"الرحيم*\"", ArabicNormalizer.toFtsPrefixQuery("الرَّحمن الرحيم"))
-        assertEquals("\"AND*\"", ArabicNormalizer.toFtsPrefixQuery("AND"))
+        assertEquals("الرحمن* AND الرحيم*", ArabicNormalizer.toFtsPrefixQuery("الرَّحمن الرحيم"))
+        assertEquals("and*", ArabicNormalizer.toFtsPrefixQuery("AND"))
     }
     @Test
     fun boundsFtsQueryComplexity() {

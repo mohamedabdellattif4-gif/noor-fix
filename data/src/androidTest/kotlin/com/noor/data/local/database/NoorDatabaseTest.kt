@@ -57,7 +57,7 @@ class NoorDatabaseTest {
             listOf(testAyah(id = 1, numberInSurah = 1, textSimple = "الرحمن الرحيم")),
         )
 
-        val results = database.ayahDao().search("\"الرحمن*\" AND \"الرحيم*\"", 10)
+        val results = database.ayahDao().search("الرحمن* AND الرحيم*", 10)
 
         assertEquals(listOf(1), results.map { it.ayah.id })
     }
