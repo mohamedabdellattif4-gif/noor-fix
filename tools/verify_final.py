@@ -158,6 +158,7 @@ def verify_toml_and_gradle() -> None:
         "isMinifyEnabled = true", "isShrinkResources = true",
         "buildConfig = true", "JavaVersion.VERSION_17",
         "abortOnError = true", "checkReleaseBuilds = true", "warningsAsErrors = true",
+        '"GradleDependency"', '"OldTargetApi"',
         "implementation(libs.androidx.profileinstaller)",
         'create("benchmark")', 'create("nonMinifiedRelease")',
         'initWith(getByName("release"))',

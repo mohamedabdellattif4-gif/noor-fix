@@ -134,12 +134,14 @@ android {
         abortOnError = true
         checkReleaseBuilds = true
         warningsAsErrors = true
-        // AndroidGradlePluginVersion / NewerVersionAvailable: versions are deliberately
-        // pinned; upgrading AGP or Kotlin is a separate release-gate decision.
+        // Toolchain and dependency versions are deliberately pinned; upgrades are a
+        // separate release-gate decision with their own compatibility validation.
         disable += setOf(
             "AndroidGradlePluginVersion", // versions are deliberately pinned
+            "GradleDependency",           // dependency versions are deliberately pinned
             "NewerVersionAvailable",      // versions are deliberately pinned
             "NotShrinkingResources",      // nonMinifiedRelease disables shrinking intentionally for profiling
+            "OldTargetApi",               // compile/target SDK upgrades require a dedicated compatibility pass
         )
     }
 }

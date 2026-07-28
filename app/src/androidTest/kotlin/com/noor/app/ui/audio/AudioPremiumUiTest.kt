@@ -6,10 +6,11 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performScrollToNode
 import com.noor.core.designsystem.theme.NoorTheme
 import com.noor.core.media.QuranPlaybackInfo
 import com.noor.core.media.QuranPlaybackState
@@ -112,9 +113,9 @@ class AudioPremiumUiTest {
             }
         }
 
-        composeRule.onNodeWithTag(AudioTestTags.surah(67))
-            .performScrollTo()
-            .performClick()
+        composeRule.onNodeWithTag(AudioTestTags.SURAH_LIST)
+            .performScrollToNode(hasTestTag(AudioTestTags.surah(67)))
+        composeRule.onNodeWithTag(AudioTestTags.surah(67)).performClick()
 
         assertEquals(67, selectedSurah)
     }
