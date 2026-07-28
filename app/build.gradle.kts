@@ -44,7 +44,7 @@ if (hasReleaseSigning) {
 
 android {
     namespace = "com.noor.app"
-    compileSdk = 37
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.noor.app"

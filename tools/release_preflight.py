@@ -66,7 +66,7 @@ def main() -> int:
         errors.append("ANDROID_SDK_ROOT or ANDROID_HOME is not configured.")
     else:
         sdk = Path(sdk_value).expanduser()
-        if not (sdk / "platforms" / "android-37").is_dir():
+        if not (sdk / "platforms" / "android-36").is_dir():
             errors.append(f"Android SDK Platform 37 is missing under {sdk}.")
 
     version_code = os.getenv("NOOR_VERSION_CODE")

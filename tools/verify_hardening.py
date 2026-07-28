@@ -88,7 +88,7 @@ def test_release_preflight(temp: Path) -> None:
     fake_java.write_text("#!/bin/sh\necho 'openjdk version \"17.0.12\"' >&2\n", encoding="utf-8")
     fake_java.chmod(0o755)
     sdk = temp / "sdk"
-    (sdk / "platforms" / "android-37").mkdir(parents=True)
+    (sdk / "platforms" / "android-36").mkdir(parents=True)
     key = temp / "noor-upload.jks"
     key.write_bytes(b"test-keystore")
     env = os.environ.copy()

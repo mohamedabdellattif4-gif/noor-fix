@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace = "com.noor.core.media"
-    compileSdk = 37
+    compileSdk = 36
     defaultConfig { minSdk = 23 }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17

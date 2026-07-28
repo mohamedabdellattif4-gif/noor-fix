@@ -144,7 +144,7 @@ def verify_toml_and_gradle() -> None:
 
     app_gradle = text("app/build.gradle.kts")
     for fragment in [
-        "compileSdk = 37", "targetSdk = 36", "minSdk = 23",
+        "compileSdk = 36", "targetSdk = 36", "minSdk = 23",
         "versionCode = noorVersionCode", "versionName = noorVersionName",
         "isMinifyEnabled = true", "isShrinkResources = true",
         "buildConfig = true", "JavaVersion.VERSION_17",
