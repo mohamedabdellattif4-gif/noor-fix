@@ -228,11 +228,15 @@ def verify_toml_and_gradle() -> None:
             "CI does not compile the profile-generation test variant")
     require("-Pandroid.testoptions.manageddevices.emulator.gpu=swiftshader_indirect" in android_ci,
             "CI managed-device tests do not select the GitHub Actions-compatible GPU renderer")
+    require('MODE="0666"' in android_ci and "test -w /dev/kvm" in android_ci,
+            "CI does not grant and verify access to GitHub Actions KVM acceleration")
     profile_ci = text(".github/workflows/baseline-profile.yml")
     require(":baseline-profile:pixel6Api35NonMinifiedReleaseAndroidTest" in profile_ci,
             "Baseline Profile workflow does not run the managed-device producer")
     require("-Pandroid.testoptions.manageddevices.emulator.gpu=swiftshader_indirect" in profile_ci,
             "Baseline Profile workflow does not select the GitHub Actions-compatible GPU renderer")
+    require('MODE="0666"' in profile_ci and "test -w /dev/kvm" in profile_ci,
+            "Baseline Profile workflow does not grant and verify KVM acceleration")
     require("tools/update_baseline_profile.py" in profile_ci,
             "Baseline Profile workflow does not validate and install generated rules")
     codeql = text(".github/workflows/codeql.yml")
