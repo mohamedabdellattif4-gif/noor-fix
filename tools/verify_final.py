@@ -139,7 +139,11 @@ def verify_toml_and_gradle() -> None:
     require(versions.get("kotlin") == "2.3.10", "Kotlin is not pinned to the AGP 9.2 built-in Kotlin version 2.3.10")
     require(versions.get("ksp") == "2.3.10", "KSP is not pinned to 2.3.10")
     require(versions.get("composeBom") == "2026.06.01", "Compose BOM is not pinned to 2026.06.01")
-    require(versions.get("coreKtx") == "1.19.0", "Core KTX is not pinned to 1.19.0")
+    require(versions.get("coreKtx") == "1.17.0", "Core KTX is not pinned to the Android 36-compatible 1.17.0")
+    require(versions.get("lifecycle") == "2.10.0",
+            "Lifecycle is not pinned to the Android 36-compatible 2.10.0")
+    require(versions.get("androidxHilt") == "1.3.0",
+            "AndroidX Hilt is not pinned to the Android 36-compatible 1.3.0")
     require(versions.get("navigationCompose") == "2.9.8", "Navigation Compose is not pinned to 2.9.8")
 
     app_gradle = text("app/build.gradle.kts")

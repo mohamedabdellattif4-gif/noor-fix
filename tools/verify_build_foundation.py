@@ -17,7 +17,7 @@ EXPECTED_VERSIONS = {
     "kotlin": "2.3.10",
     "ksp": "2.3.10",
     "composeBom": "2026.06.01",
-    "coreKtx": "1.19.0",
+    "coreKtx": "1.17.0",
     "navigationCompose": "2.9.8",
 }
 ERRORS: list[str] = []
