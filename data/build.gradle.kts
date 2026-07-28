@@ -23,8 +23,8 @@ android {
     testOptions {
         animationsDisabled = true
         managedDevices {
-            devices {
-                create<com.android.build.api.dsl.ManagedVirtualDevice>("pixel6Api35") {
+            localDevices {
+                create("pixel6Api35") {
                     device = "Pixel 6"
                     apiLevel = 35
                     systemImageSource = "google"
