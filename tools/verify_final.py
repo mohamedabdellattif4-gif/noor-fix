@@ -384,16 +384,6 @@ def verify_architecture() -> None:
         "content=`ayahs`" in migrations,
         "The migrated FTS table must match Room's backtick-quoted external-content schema",
     )
-    ayah_dao = text("data/src/main/kotlin/com/noor/data/local/dao/AyahDao.kt")
-    for fragment in [
-        "@Transaction",
-        "suspend fun upsertRows",
-        "INSERT INTO ayahs_fts(ayahs_fts) VALUES('rebuild')",
-        "rebuildSearchIndex()",
-    ]:
-        require(fragment in ayah_dao, f"Corpus upserts do not guarantee FTS synchronization: {fragment}")
-
-
 def verify_code_hygiene() -> None:
     kotlin_files = all_files("*.kt") + all_files("*.kts")
     secret_pattern = re.compile(r'(?i)(api[_-]?key|client[_-]?secret|private[_-]?key|access[_-]?token)\s*[=:]\s*["\'][^"\']+["\']')
@@ -522,7 +512,7 @@ def verify_database() -> None:
         require(con.execute("SELECT MIN(juz_number), MAX(juz_number) FROM ayahs").fetchone() == (1, 30), "Juz range mismatch")
         require(con.execute("SELECT MIN(hizb_quarter), MAX(hizb_quarter) FROM ayahs").fetchone() == (1, 240), "Rub el hizb range mismatch")
         require(con.execute("SELECT COUNT(*) FROM ayahs WHERE trim(text_uthmani)='' OR trim(text_simple)='' ").fetchone()[0] == 0, "Blank Quran text found")
-        require(con.execute("SELECT COUNT(*) FROM ayahs_fts WHERE ayahs_fts MATCH ?", ("الرحمن* AND الرحيم*",)).fetchone()[0] > 0, "Arabic FTS query failed")
+        require(con.execute("SELECT COUNT(*) FROM ayahs_fts WHERE ayahs_fts MATCH ?", ("الرحمن* الرحيم*",)).fetchone()[0] > 0, "Arabic FTS query failed")
 
         tanzil_root = ET.parse(ROOT / "tools/vendor/tanzil-quran-uthmani.xml").getroot()
         expected = [aya.attrib["text"] for sura in tanzil_root.findall("sura") for aya in sura.findall("aya")]

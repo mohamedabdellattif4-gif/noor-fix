@@ -33,7 +33,10 @@ object ArabicNormalizer {
         .filter(String::isNotBlank)
         .take(MAX_QUERY_TOKENS)
         .map { it.take(MAX_TOKEN_LENGTH) }
-        .joinToString(" AND ") { token -> "$token*" }
+        // Whitespace is the portable implicit-AND form for both standard and
+        // enhanced FTS3/4 query syntax. Some Android SQLite builds treat the
+        // explicit word AND as a literal search term.
+        .joinToString(" ") { token -> "$token*" }
 
     const val MAX_QUERY_LENGTH: Int = 200
     const val MAX_QUERY_TOKENS: Int = 12

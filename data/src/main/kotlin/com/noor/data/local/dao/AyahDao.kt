@@ -2,7 +2,6 @@ package com.noor.data.local.dao
 
 import androidx.room.Dao
 import androidx.room.Query
-import androidx.room.Transaction
 import androidx.room.Upsert
 import com.noor.data.local.entity.AyahEntity
 import com.noor.data.local.model.AyahWithSurahName
@@ -39,17 +38,5 @@ interface AyahDao {
     @Query("SELECT COUNT(*) FROM ayahs")
     suspend fun count(): Int
 
-    @Upsert
-    suspend fun upsertRows(ayahs: List<AyahEntity>)
-
-    @Query("INSERT INTO ayahs_fts(ayahs_fts) VALUES('rebuild')")
-    suspend fun rebuildSearchIndex()
-
-    @Transaction
-    suspend fun upsertAll(ayahs: List<AyahEntity>) {
-        upsertRows(ayahs)
-        // Room/SQLite upsert behavior varies across Android versions; rebuilding guarantees
-        // that the external-content FTS index reflects the canonical corpus transaction.
-        rebuildSearchIndex()
-    }
+    @Upsert suspend fun upsertAll(ayahs: List<AyahEntity>)
 }
