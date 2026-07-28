@@ -169,18 +169,20 @@ def verify_toml_and_gradle() -> None:
             "App must use the checked-in profile without the incompatible consumer plugin")
     baseline_gradle = text("baseline-profile/build.gradle.kts")
     for fragment in [
-        "alias(libs.plugins.benchmark)", 'targetProjectPath = ":app"',
+        'targetProjectPath = ":app"',
         'create("benchmark")', 'create("nonMinifiedRelease")',
         'matchingFallbacks += listOf("release")',
         'systemImageSource = "aosp"', "androidx.benchmark.macro.junit4",
         "androidx.test.uiautomator",
     ]:
         require(fragment in baseline_gradle, f"Benchmark configuration missing: {fragment}")
+    require("alias(libs.plugins.benchmark)" not in baseline_gradle,
+            "The AndroidX Benchmark plugin supports Android library modules, not com.android.test")
     require("libs.plugins.baseline.profile" not in baseline_gradle,
             "Benchmark module must not apply the incompatible Baseline Profile Gradle plugin")
     root_gradle = text("build.gradle.kts")
-    require("alias(libs.plugins.benchmark) apply false" in root_gradle,
-            "Stable Benchmark Gradle plugin must be registered at the root")
+    require("alias(libs.plugins.benchmark)" not in root_gradle,
+            "The unused AndroidX Benchmark plugin must not be registered at the root")
     require("android.newDsl=false" not in text("gradle.properties"),
             "Legacy AGP DSL must not be re-enabled for benchmark tooling")
     generator = text("baseline-profile/src/main/kotlin/com/noor/baselineprofile/BaselineProfileGenerator.kt")
