@@ -87,7 +87,7 @@ jobs:
         run: python3 tools/verify_android_artifact.py app/build/outputs/bundle/release/app-release.aab
       - name: Upload reports and artifacts
         if: always()
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: noor-ci-output
           if-no-files-found: ignore
@@ -139,7 +139,7 @@ jobs:
             --stacktrace
       - name: Upload instrumentation reports
         if: always()
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: noor-instrumentation-output
           if-no-files-found: ignore
