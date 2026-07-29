@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "com.noor.core.navigation"
-    compileSdk = 37
+    compileSdk = 36
 
     defaultConfig {
         minSdk = 23

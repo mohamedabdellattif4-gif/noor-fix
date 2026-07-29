@@ -17,7 +17,7 @@ EXPECTED_VERSIONS = {
     "kotlin": "2.3.10",
     "ksp": "2.3.10",
     "composeBom": "2026.06.01",
-    "coreKtx": "1.19.0",
+    "coreKtx": "1.17.0",
     "navigationCompose": "2.9.8",
 }
 ERRORS: list[str] = []
@@ -120,7 +120,7 @@ def verify_gradle_and_ci() -> None:
 
     app = read("app/build.gradle.kts")
     for fragment in [
-        "compileSdk = 37",
+        "compileSdk = 36",
         "targetSdk = 36",
         "JavaVersion.VERSION_17",
         "warningsAsErrors = true",
@@ -131,8 +131,8 @@ def verify_gradle_and_ci() -> None:
 
     ci = read(".github/workflows/android-ci.yml")
     require("java-version: '17'" in ci, "Android CI must use JDK 17")
-    require('sdkmanager "platforms;android-37" "build-tools;36.0.0"' in ci,
-            "Android CI SDK versions do not match AGP 9.2 requirements")
+    require('sdkmanager "platforms;android-36" "build-tools;36.0.0"' in ci,
+            "Android CI SDK versions do not match the project toolchain")
     require("verify_build_foundation.py --allow-missing-wrapper-jar" in ci,
             "Source CI does not run the build-foundation verifier")
     require("verify_build_foundation.py --require-wrapper-jar" in ci,

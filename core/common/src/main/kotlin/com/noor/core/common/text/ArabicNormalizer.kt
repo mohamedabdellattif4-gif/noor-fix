@@ -1,6 +1,7 @@
 package com.noor.core.common.text
 
 import java.text.Normalizer
+import java.util.Locale
 
 /** Normalizes Arabic only for search/indexing; Quran display text must remain verbatim. */
 object ArabicNormalizer {
@@ -25,13 +26,17 @@ object ArabicNormalizer {
 
     /** Builds a safe FTS4 prefix query from already normalized letters and digits. */
     fun toFtsPrefixQuery(value: String): String = normalize(value)
+        .lowercase(Locale.ROOT)
         .take(MAX_QUERY_LENGTH)
         .split(' ')
         .asSequence()
         .filter(String::isNotBlank)
         .take(MAX_QUERY_TOKENS)
         .map { it.take(MAX_TOKEN_LENGTH) }
-        .joinToString(" AND ") { token -> "\"$token*\"" }
+        // Whitespace is the portable implicit-AND form for both standard and
+        // enhanced FTS3/4 query syntax. Some Android SQLite builds treat the
+        // explicit word AND as a literal search term.
+        .joinToString(" ") { token -> "$token*" }
 
     const val MAX_QUERY_LENGTH: Int = 200
     const val MAX_QUERY_TOKENS: Int = 12

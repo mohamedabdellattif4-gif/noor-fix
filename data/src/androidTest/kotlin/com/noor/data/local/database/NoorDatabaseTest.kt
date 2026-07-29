@@ -7,6 +7,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.noor.data.local.RoomQuranLocalDataSource
 import com.noor.data.local.entity.AyahEntity
 import com.noor.data.local.entity.SurahEntity
+import com.noor.core.common.text.ArabicNormalizer
 import java.io.IOException
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -57,7 +58,10 @@ class NoorDatabaseTest {
             listOf(testAyah(id = 1, numberInSurah = 1, textSimple = "الرحمن الرحيم")),
         )
 
-        val results = database.ayahDao().search("\"الرحمن*\" AND \"الرحيم*\"", 10)
+        val results = database.ayahDao().search(
+            ArabicNormalizer.toFtsPrefixQuery("الرَّحمن الرحيم"),
+            10,
+        )
 
         assertEquals(listOf(1), results.map { it.ayah.id })
     }

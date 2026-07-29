@@ -126,7 +126,8 @@ def verify_toml_and_gradle() -> None:
     versions = catalog.get("versions", {})
     required = {
         "agp", "kotlin", "ksp", "hilt", "composeBom", "room",
-        "datastore", "work", "media3", "benchmark", "profileInstaller", "uiAutomator",
+        "datastore", "work", "media3", "benchmark", "profileInstaller",
+        "archCore", "startup", "errorProneAnnotations", "uiAutomator",
     }
     require(required <= set(versions), "Version Catalog misses required versions")
     require(versions.get("work") == "2.11.2", "WorkManager version is not pinned to 2.11.2")
@@ -135,20 +136,29 @@ def verify_toml_and_gradle() -> None:
     require(versions.get("room") == "2.8.4", "Room version is not pinned to 2.8.4")
     require(versions.get("benchmark") == "1.4.1", "Benchmark version is not pinned to 1.4.1")
     require(versions.get("profileInstaller") == "1.4.1", "ProfileInstaller version is not pinned to 1.4.1")
+    require(versions.get("archCore") == "2.2.0", "Arch Core version is not pinned to 2.2.0")
+    require(versions.get("startup") == "1.2.0", "App Startup version is not pinned to 1.2.0")
+    require(versions.get("errorProneAnnotations") == "2.36.0",
+            "Error Prone annotations version is not pinned to 2.36.0")
     require(versions.get("uiAutomator") == "2.4.0", "UiAutomator version is not pinned to 2.4.0")
     require(versions.get("kotlin") == "2.3.10", "Kotlin is not pinned to the AGP 9.2 built-in Kotlin version 2.3.10")
     require(versions.get("ksp") == "2.3.10", "KSP is not pinned to 2.3.10")
     require(versions.get("composeBom") == "2026.06.01", "Compose BOM is not pinned to 2026.06.01")
-    require(versions.get("coreKtx") == "1.19.0", "Core KTX is not pinned to 1.19.0")
+    require(versions.get("coreKtx") == "1.17.0", "Core KTX is not pinned to the Android 36-compatible 1.17.0")
+    require(versions.get("lifecycle") == "2.10.0",
+            "Lifecycle is not pinned to the Android 36-compatible 2.10.0")
+    require(versions.get("androidxHilt") == "1.3.0",
+            "AndroidX Hilt is not pinned to the Android 36-compatible 1.3.0")
     require(versions.get("navigationCompose") == "2.9.8", "Navigation Compose is not pinned to 2.9.8")
 
     app_gradle = text("app/build.gradle.kts")
     for fragment in [
-        "compileSdk = 37", "targetSdk = 36", "minSdk = 23",
+        "compileSdk = 36", "targetSdk = 36", "minSdk = 23",
         "versionCode = noorVersionCode", "versionName = noorVersionName",
         "isMinifyEnabled = true", "isShrinkResources = true",
         "buildConfig = true", "JavaVersion.VERSION_17",
         "abortOnError = true", "checkReleaseBuilds = true", "warningsAsErrors = true",
+        '"GradleDependency"', '"OldTargetApi"',
         "implementation(libs.androidx.profileinstaller)",
         'create("benchmark")', 'create("nonMinifiedRelease")',
         'initWith(getByName("release"))',
@@ -169,18 +179,24 @@ def verify_toml_and_gradle() -> None:
             "App must use the checked-in profile without the incompatible consumer plugin")
     baseline_gradle = text("baseline-profile/build.gradle.kts")
     for fragment in [
-        "alias(libs.plugins.benchmark)", 'targetProjectPath = ":app"',
+        'targetProjectPath = ":app"',
         'create("benchmark")', 'create("nonMinifiedRelease")',
         'matchingFallbacks += listOf("release")',
         'systemImageSource = "aosp"', "androidx.benchmark.macro.junit4",
+        "androidx.profileinstaller", "androidx.arch.core.runtime",
+        "androidx.startup.runtime", "errorprone.annotations",
         "androidx.test.uiautomator",
     ]:
         require(fragment in baseline_gradle, f"Benchmark configuration missing: {fragment}")
+    require("alias(libs.plugins.benchmark)" not in baseline_gradle,
+            "The AndroidX Benchmark plugin supports Android library modules, not com.android.test")
+    require("isMinifyEnabled = true" in baseline_gradle,
+            "The benchmark test APK must be shrunk when the tested benchmark app is shrunk")
     require("libs.plugins.baseline.profile" not in baseline_gradle,
             "Benchmark module must not apply the incompatible Baseline Profile Gradle plugin")
     root_gradle = text("build.gradle.kts")
-    require("alias(libs.plugins.benchmark) apply false" in root_gradle,
-            "Stable Benchmark Gradle plugin must be registered at the root")
+    require("alias(libs.plugins.benchmark)" not in root_gradle,
+            "The unused AndroidX Benchmark plugin must not be registered at the root")
     require("android.newDsl=false" not in text("gradle.properties"),
             "Legacy AGP DSL must not be re-enabled for benchmark tooling")
     generator = text("baseline-profile/src/main/kotlin/com/noor/baselineprofile/BaselineProfileGenerator.kt")
@@ -218,9 +234,17 @@ def verify_toml_and_gradle() -> None:
     require(":baseline-profile:assembleBenchmark" in android_ci, "CI does not compile the benchmark test module")
     require(":baseline-profile:assembleNonMinifiedRelease" in android_ci,
             "CI does not compile the profile-generation test variant")
+    require("-Pandroid.testoptions.manageddevices.emulator.gpu=swiftshader_indirect" in android_ci,
+            "CI managed-device tests do not select the GitHub Actions-compatible GPU renderer")
+    require('MODE="0666"' in android_ci and "test -w /dev/kvm" in android_ci,
+            "CI does not grant and verify access to GitHub Actions KVM acceleration")
     profile_ci = text(".github/workflows/baseline-profile.yml")
     require(":baseline-profile:pixel6Api35NonMinifiedReleaseAndroidTest" in profile_ci,
             "Baseline Profile workflow does not run the managed-device producer")
+    require("-Pandroid.testoptions.manageddevices.emulator.gpu=swiftshader_indirect" in profile_ci,
+            "Baseline Profile workflow does not select the GitHub Actions-compatible GPU renderer")
+    require('MODE="0666"' in profile_ci and "test -w /dev/kvm" in profile_ci,
+            "Baseline Profile workflow does not grant and verify KVM acceleration")
     require("tools/update_baseline_profile.py" in profile_ci,
             "Baseline Profile workflow does not validate and install generated rules")
     codeql = text(".github/workflows/codeql.yml")
@@ -357,8 +381,10 @@ def verify_architecture() -> None:
         "createAyahFtsSyncTriggers(database)" in migrations,
         "The 2 -> 3 migration must recreate FTS synchronization triggers after Room drops them",
     )
-
-
+    require(
+        "content=`ayahs`" in migrations,
+        "The migrated FTS table must match Room's backtick-quoted external-content schema",
+    )
 def verify_code_hygiene() -> None:
     kotlin_files = all_files("*.kt") + all_files("*.kts")
     secret_pattern = re.compile(r'(?i)(api[_-]?key|client[_-]?secret|private[_-]?key|access[_-]?token)\s*[=:]\s*["\'][^"\']+["\']')
@@ -423,7 +449,7 @@ def verify_migration_fts_sync_contract() -> None:
                 id INTEGER NOT NULL PRIMARY KEY,
                 text_simple TEXT NOT NULL
             );
-            CREATE VIRTUAL TABLE ayahs_fts USING FTS4(text_simple, content='ayahs');
+            CREATE VIRTUAL TABLE ayahs_fts USING FTS4(`text_simple` TEXT NOT NULL, content=`ayahs`);
             """
         )
         for statement in trigger_sql:
@@ -433,7 +459,7 @@ def verify_migration_fts_sync_contract() -> None:
         require(
             connection.execute(
                 "SELECT COUNT(*) FROM ayahs_fts WHERE ayahs_fts MATCH ?",
-                ('"الرحمن*"',),
+                ("الرحمن*",),
             ).fetchone()[0] == 1,
             "Migrated FTS triggers do not synchronize inserts",
         )
@@ -441,14 +467,14 @@ def verify_migration_fts_sync_contract() -> None:
         require(
             connection.execute(
                 "SELECT COUNT(*) FROM ayahs_fts WHERE ayahs_fts MATCH ?",
-                ('"الرحمن*"',),
+                ("الرحمن*",),
             ).fetchone()[0] == 0,
             "Migrated FTS triggers leave stale terms after updates",
         )
         require(
             connection.execute(
                 "SELECT COUNT(*) FROM ayahs_fts WHERE ayahs_fts MATCH ?",
-                ('"مالك*"',),
+                ("مالك*",),
             ).fetchone()[0] == 1,
             "Migrated FTS triggers do not synchronize updated terms",
         )
@@ -487,7 +513,7 @@ def verify_database() -> None:
         require(con.execute("SELECT MIN(juz_number), MAX(juz_number) FROM ayahs").fetchone() == (1, 30), "Juz range mismatch")
         require(con.execute("SELECT MIN(hizb_quarter), MAX(hizb_quarter) FROM ayahs").fetchone() == (1, 240), "Rub el hizb range mismatch")
         require(con.execute("SELECT COUNT(*) FROM ayahs WHERE trim(text_uthmani)='' OR trim(text_simple)='' ").fetchone()[0] == 0, "Blank Quran text found")
-        require(con.execute("SELECT COUNT(*) FROM ayahs_fts WHERE ayahs_fts MATCH ?", ("\"الرحمن*\" AND \"الرحيم*\"",)).fetchone()[0] > 0, "Arabic FTS query failed")
+        require(con.execute("SELECT COUNT(*) FROM ayahs_fts WHERE ayahs_fts MATCH ?", ("الرحمن* الرحيم*",)).fetchone()[0] > 0, "Arabic FTS query failed")
 
         tanzil_root = ET.parse(ROOT / "tools/vendor/tanzil-quran-uthmani.xml").getroot()
         expected = [aya.attrib["text"] for sura in tanzil_root.findall("sura") for aya in sura.findall("aya")]
@@ -650,6 +676,8 @@ def verify_text_hygiene() -> None:
         if not path.is_file() or path.suffix in {".db", ".jar", ".zip", ".png", ".jpg", ".webp"}:
             continue
         relative = path.relative_to(ROOT)
+        if relative.parts and relative.parts[0] in {".git", ".gradle", ".verification", "build"}:
+            continue
         # Vendored source and license notices remain byte-for-byte as supplied by their publishers.
         if str(relative).startswith("tools/vendor/") or str(relative).startswith("app/src/main/assets/licenses/"):
             continue

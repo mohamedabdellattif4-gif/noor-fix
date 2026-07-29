@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "com.noor.data"
-    compileSdk = 37
+    compileSdk = 36
 
     defaultConfig {
         minSdk = 23
@@ -22,7 +22,15 @@ android {
 
     testOptions {
         animationsDisabled = true
-        // Managed virtual devices removed — see app/build.gradle.kts comment.
+        managedDevices {
+            localDevices {
+                create("pixel6Api35") {
+                    device = "Pixel 6"
+                    apiLevel = 35
+                    systemImageSource = "google"
+                }
+            }
+        }
     }
 }
 

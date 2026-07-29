@@ -1,45 +1,24 @@
-# [Project name]
+# Noor — Android Quran App
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+Noor is an offline-first Android application built with Kotlin, Jetpack Compose,
+Material 3, Clean Architecture, MVVM, Hilt, Room, Media3, DataStore, and
+WorkManager.
 
-## Run & Operate
+## Toolchain
 
-- `pnpm --filter @workspace/api-server run dev` — run the API server (port 5000)
-- `pnpm run typecheck` — full typecheck across all packages
-- `pnpm run build` — typecheck + build all packages
-- `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
-- `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
-- Required env: `DATABASE_URL` — Postgres connection string
+- JDK 17
+- Gradle 9.4.1
+- Android SDK Platform 37
+- Android Build Tools 36.0.0
 
-## Stack
+## Common commands
 
-- pnpm workspaces, Node.js 24, TypeScript 5.9
-- API: Express 5
-- DB: PostgreSQL + Drizzle ORM
-- Validation: Zod (`zod/v4`), `drizzle-zod`
-- API codegen: Orval (from OpenAPI spec)
-- Build: esbuild (CJS bundle)
+```bash
+./gradlew test
+./gradlew lintDebug
+./gradlew :app:assembleDebug
+python3 tools/verify_final.py
+```
 
-## Where things live
-
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
-
-## Architecture decisions
-
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
-
-## Product
-
-_Describe the high-level user-facing capabilities of this app once they exist._
-
-## User preferences
-
-_Populate as you build — explicit user instructions worth remembering across sessions._
-
-## Gotchas
-
-_Populate as you build — sharp edges, "always run X before Y" rules._
-
-## Pointers
-
-- See the `pnpm-workspace` skill for workspace structure, TypeScript setup, and package details
+The release signing keystore and all signing credentials must remain outside
+the repository. See `RELEASE_SIGNING.md` and `docs/RELEASE.md`.

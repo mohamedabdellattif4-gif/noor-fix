@@ -109,7 +109,8 @@ def check_offline_fts_contract() -> None:
     require("ORDER BY a.id ASC" in dao, "Canonical Quran ordering changed")
     require("ArabicNormalizer.toFtsPrefixQuery" in repository,
             "FTS input is not routed through the safe normalizer")
-    require('joinToString(" AND ")' in normalizer, "Bounded FTS token conjunction changed")
+    require('joinToString(" ")' in normalizer,
+            "FTS terms must use the portable implicit-AND syntax")
     require("MAX_QUERY_TOKENS" in normalizer and "MAX_TOKEN_LENGTH" in normalizer,
             "FTS query bounds are missing")
 

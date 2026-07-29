@@ -44,12 +44,12 @@ if (hasReleaseSigning) {
 
 android {
     namespace = "com.noor.app"
-    compileSdk = 37
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.noor.app"
         minSdk = 23
-        targetSdk = 37
+        targetSdk = 36
         versionCode = noorVersionCode
         versionName = noorVersionName
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -119,22 +119,29 @@ android {
 
     testOptions {
         animationsDisabled = true
-        // Managed virtual devices (AVD-based instrumented tests) are not used on Replit.
-        // The pixel6Api35 managed device is defined in the baseline-profile module for
-        // Macrobenchmark runs. AGP 9.2.1 changed the managedDevices.devices container API;
-        // re-add this block when running device tests on a machine with an Android emulator.
+        managedDevices {
+            localDevices {
+                create("pixel6Api35") {
+                    device = "Pixel 6"
+                    apiLevel = 35
+                    systemImageSource = "google"
+                }
+            }
+        }
     }
 
     lint {
         abortOnError = true
         checkReleaseBuilds = true
         warningsAsErrors = true
-        // AndroidGradlePluginVersion / NewerVersionAvailable: versions are deliberately
-        // pinned; upgrading AGP or Kotlin is a separate release-gate decision.
+        // Toolchain and dependency versions are deliberately pinned; upgrades are a
+        // separate release-gate decision with their own compatibility validation.
         disable += setOf(
             "AndroidGradlePluginVersion", // versions are deliberately pinned
+            "GradleDependency",           // dependency versions are deliberately pinned
             "NewerVersionAvailable",      // versions are deliberately pinned
             "NotShrinkingResources",      // nonMinifiedRelease disables shrinking intentionally for profiling
+            "OldTargetApi",               // compile/target SDK upgrades require a dedicated compatibility pass
         )
     }
 }

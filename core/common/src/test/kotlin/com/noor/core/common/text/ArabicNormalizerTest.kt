@@ -12,13 +12,13 @@ class ArabicNormalizerTest {
 
     @Test
     fun buildsSafePrefixQuery() {
-        assertEquals("\"الرحمن*\" AND \"الرحيم*\"", ArabicNormalizer.toFtsPrefixQuery("الرَّحمن الرحيم"))
-        assertEquals("\"AND*\"", ArabicNormalizer.toFtsPrefixQuery("AND"))
+        assertEquals("الرحمن* الرحيم*", ArabicNormalizer.toFtsPrefixQuery("الرَّحمن الرحيم"))
+        assertEquals("and*", ArabicNormalizer.toFtsPrefixQuery("AND"))
     }
     @Test
     fun boundsFtsQueryComplexity() {
         val longQuery = (1..30).joinToString(" ") { "كلمةطويلةجداً" }
-        val terms = ArabicNormalizer.toFtsPrefixQuery(longQuery).split(" AND ")
+        val terms = ArabicNormalizer.toFtsPrefixQuery(longQuery).split(' ')
 
         assertEquals(ArabicNormalizer.MAX_QUERY_TOKENS, terms.size)
     }

@@ -85,7 +85,7 @@ object NoorDatabaseMigrations {
         override fun migrate(database: SupportSQLiteDatabase) {
             database.execSQL("DROP INDEX IF EXISTS index_ayahs_text_simple")
             database.execSQL(
-                "CREATE VIRTUAL TABLE ayahs_fts USING FTS4(text_simple, content='ayahs')",
+                "CREATE VIRTUAL TABLE ayahs_fts USING FTS4(`text_simple` TEXT NOT NULL, content=`ayahs`)",
             )
             database.execSQL("INSERT INTO ayahs_fts(ayahs_fts) VALUES('rebuild')")
             createAyahFtsSyncTriggers(database)
@@ -102,32 +102,32 @@ object NoorDatabaseMigrations {
         database.execSQL(
             """
             CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_ayahs_fts_AFTER_INSERT
-            AFTER INSERT ON ayahs BEGIN
-                INSERT INTO ayahs_fts(docid, text_simple) VALUES (new.id, new.text_simple);
+            AFTER INSERT ON `ayahs` BEGIN
+                INSERT INTO `ayahs_fts`(`docid`, `text_simple`) VALUES (NEW.`rowid`, NEW.`text_simple`);
             END
             """.trimIndent(),
         )
         database.execSQL(
             """
             CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_ayahs_fts_BEFORE_DELETE
-            BEFORE DELETE ON ayahs BEGIN
-                DELETE FROM ayahs_fts WHERE docid = old.id;
+            BEFORE DELETE ON `ayahs` BEGIN
+                DELETE FROM `ayahs_fts` WHERE `docid` = OLD.`rowid`;
             END
             """.trimIndent(),
         )
         database.execSQL(
             """
             CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_ayahs_fts_BEFORE_UPDATE
-            BEFORE UPDATE ON ayahs BEGIN
-                DELETE FROM ayahs_fts WHERE docid = old.id;
+            BEFORE UPDATE ON `ayahs` BEGIN
+                DELETE FROM `ayahs_fts` WHERE `docid` = OLD.`rowid`;
             END
             """.trimIndent(),
         )
         database.execSQL(
             """
             CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_ayahs_fts_AFTER_UPDATE
-            AFTER UPDATE ON ayahs BEGIN
-                INSERT INTO ayahs_fts(docid, text_simple) VALUES (new.id, new.text_simple);
+            AFTER UPDATE ON `ayahs` BEGIN
+                INSERT INTO `ayahs_fts`(`docid`, `text_simple`) VALUES (NEW.`rowid`, NEW.`text_simple`);
             END
             """.trimIndent(),
         )
