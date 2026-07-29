@@ -77,10 +77,12 @@ jobs:
             :baseline-profile:assembleNonMinifiedRelease \
             :app:lintDebug \
             :app:lintRelease \
+            --no-parallel \
+            --max-workers=2 \
             --warning-mode=all \
             --stacktrace
       - name: Build unsigned release bundle
-        run: ./gradlew :app:bundleRelease --stacktrace
+        run: ./gradlew :app:bundleRelease --no-parallel --max-workers=2 --stacktrace
       - name: Verify generated Android artifact
         run: python3 tools/verify_android_artifact.py app/build/outputs/bundle/release/app-release.aab
       - name: Upload reports and artifacts
